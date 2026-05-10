@@ -190,6 +190,8 @@ public class AuthService {
         profile.setUpdatedAt(LocalDateTime.now());
         profile.setDoctorChamber(chamber);
         profile.setUser(savedUser);
+        profile.setDob(request.getDob());
+        profile.setHeight(request.getHeight());
 
         String creatorRole = creator.getRoles().stream()
                 .map(Role::getName)
@@ -209,6 +211,8 @@ public class AuthService {
         response.setChamberId(chamber.getId());
         response.setChamberName(chamber.getChamberName());
         response.setCreatedByRole(creatorRole);
+        response.setDob(savedProfile.getDob());
+        response.setHeight(savedProfile.getHeight());
 
         return response;
     }
@@ -242,6 +246,8 @@ public class AuthService {
         profile.setGender(request.getGender());
         profile.setAddress(request.getAddress());
         profile.setUpdatedAt(LocalDateTime.now());
+        profile.setDob(request.getDob());
+        profile.setHeight(request.getHeight());
 
         if (request.getChamberId() != null) {
             DoctorChamber chamber = doctorChamberRepository.findById(request.getChamberId())

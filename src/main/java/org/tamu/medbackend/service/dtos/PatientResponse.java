@@ -3,6 +3,8 @@ package org.tamu.medbackend.service.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 public class PatientResponse {
@@ -16,4 +18,8 @@ public class PatientResponse {
     private String chamberName;
 
     private String createdByRole;
+
+    private LocalDate dob;
+
+    private double height;
 }

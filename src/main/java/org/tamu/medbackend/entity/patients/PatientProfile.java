@@ -14,6 +14,7 @@ import lombok.Setter;
 import org.tamu.medbackend.entity.doctor.DoctorChamber;
 import org.tamu.medbackend.entity.users.User;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,6 +38,10 @@ public class PatientProfile {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private LocalDate dob;
+
+    private double height;
 
     @ManyToOne
     private User user;
