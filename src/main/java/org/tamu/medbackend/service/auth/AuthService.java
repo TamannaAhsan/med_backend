@@ -13,6 +13,8 @@ import org.tamu.medbackend.repository.PatientProfileRepository;
 import org.tamu.medbackend.repository.RoleRepository;
 import org.tamu.medbackend.repository.UserRepository;
 import org.tamu.medbackend.security.JwtService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tamu.medbackend.service.dtos.CreatePatientRequest;
@@ -152,41 +154,26 @@ public class AuthService {
     }
 
     @Transactional
-    public PatientResponse createPatient(CreatePatientRequest request, Long creatorId) {
+    public PatientResponse createPatient(CreatePatientRequest request) {
 
-        // 1. validate creator
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("Creator not found"));
+        User creator = getCurrentUserForMutation();
 
-        boolean allowed = creator.getRoles().stream()
-                .anyMatch(r ->
-                        r.getName().equalsIgnoreCase("DOCTOR") ||
-                                r.getName().equalsIgnoreCase("REPRESENTATIVE"));
-
-        if (!allowed) {
-            throw new RuntimeException("Not allowed to create patient");
-        }
-
-        // 2. null check
         if (request.getChamberId() == null) {
             throw new RuntimeException("Chamber is required");
         }
 
-        // 3. duplicate check
+        // duplicate check
         userRepository.findByContactNumber(request.getContactNumber())
                 .ifPresent(u -> {
                     throw new RuntimeException("Patient already exists");
                 });
 
-        // 4. role
         Role patientRole = roleRepository.findByName("PATIENT")
                 .orElseThrow(() -> new RuntimeException("PATIENT role not found"));
 
-        // 5. chamber
         DoctorChamber chamber = doctorChamberRepository.findById(request.getChamberId())
                 .orElseThrow(() -> new RuntimeException("Chamber not found"));
 
-        // 6. user
         User user = new User();
         user.setEmail(request.getEmail());
         user.setContactNumber(request.getContactNumber());
@@ -195,7 +182,6 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // 7. profile
         PatientProfile profile = new PatientProfile();
         profile.setUsername(request.getUsername());
         profile.setGender(request.getGender());
@@ -215,7 +201,6 @@ public class AuthService {
 
         PatientProfile savedProfile = patientProfileRepository.save(profile);
 
-        // 8. response
         PatientResponse response = new PatientResponse();
         response.setId(savedProfile.getId());
         response.setUsername(savedProfile.getUsername());
@@ -248,33 +233,16 @@ public class AuthService {
 
     @Transactional
     public PatientProfile updatePatientProfile(Long patientProfileId,
-                                               UpdatePatientProfileRequest request,
-                                               Long updaterUserId) {
+                                               UpdatePatientProfileRequest request) {
 
-        // 1. find updater (doctor/representative)
-        User updater = userRepository.findById(updaterUserId)
-                .orElseThrow(() -> new RuntimeException("Updater not found"));
-
-        boolean allowed = updater.getRoles().stream()
-                .anyMatch(r ->
-                        r.getName().equalsIgnoreCase("DOCTOR") ||
-                                r.getName().equalsIgnoreCase("REPRESENTATIVE"));
-
-        if (!allowed) {
-            throw new RuntimeException("Not allowed to update patient profile");
-        }
-
-        // 2. find patient profile
         PatientProfile profile = patientProfileRepository.findById(patientProfileId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
 
-        // 3. update only profile fields (NOT user)
         profile.setUsername(request.getUsername());
         profile.setGender(request.getGender());
         profile.setAddress(request.getAddress());
         profile.setUpdatedAt(LocalDateTime.now());
 
-        // 4. update chamber if provided
         if (request.getChamberId() != null) {
             DoctorChamber chamber = doctorChamberRepository.findById(request.getChamberId())
                     .orElseThrow(() -> new RuntimeException("Chamber not found"));
@@ -285,6 +253,18 @@ public class AuthService {
         return patientProfileRepository.save(profile);
     }
 
+    private User getCurrentUserForMutation() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Not authenticated");
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof User detached)) {
+            throw new RuntimeException("Invalid authentication");
+        }
+        return userRepository.findById(detached.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
 
 
