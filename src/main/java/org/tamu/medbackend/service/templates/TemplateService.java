@@ -102,19 +102,26 @@ public class TemplateService {
         templatesRepository.save(template);
     }
 
+    private static final String REFERRAL_TEMPLATE_STATUS = "TEMPLATE";
+
     @Transactional
     public DoctorReferral createReferral(CreateReferralRequest request) {
 
         DoctorProfile fromDoctor = doctorProfileRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-        PatientProfile patient = patientProfileRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
-
         DoctorReferral referral = new DoctorReferral();
 
         referral.setFromDoctor(fromDoctor);
-        referral.setPatient(patient);
+
+        if (request.getPatientId() != null) {
+            PatientProfile patient = patientProfileRepository.findById(request.getPatientId())
+                    .orElseThrow(() -> new RuntimeException("Patient not found"));
+            referral.setPatient(patient);
+            referral.setStatus("SENT");
+        } else {
+            referral.setStatus(REFERRAL_TEMPLATE_STATUS);
+        }
 
         referral.setToDoctorName(request.getToDoctorName());
         referral.setToDoctorSpeciality(request.getToDoctorSpeciality());
@@ -122,17 +129,15 @@ public class TemplateService {
         referral.setReason(request.getReason());
         referral.setNotes(request.getNotes());
 
-        referral.setStatus("SENT");
-
         referral.setCreatedAt(LocalDateTime.now());
         referral.setUpdatedAt(LocalDateTime.now());
 
         return referralRepository.save(referral);
     }
 
-    // READ ALL (by doctor)
+    // READ ALL referral-doctor templates (by doctor)
     public List<DoctorReferral> getByDoctor(Long doctorId) {
-        return referralRepository.findByFromDoctorId(doctorId);
+        return referralRepository.findByFromDoctorIdAndStatus(doctorId, REFERRAL_TEMPLATE_STATUS);
     }
 
     // READ SINGLE
@@ -151,7 +156,9 @@ public class TemplateService {
         referral.setToDoctorSpeciality(request.getToDoctorSpeciality());
         referral.setReason(request.getReason());
         referral.setNotes(request.getNotes());
-        referral.setStatus(request.getStatus());
+        if (request.getStatus() != null) {
+            referral.setStatus(request.getStatus());
+        }
         referral.setUpdatedAt(LocalDateTime.now());
 
         return referralRepository.save(referral);

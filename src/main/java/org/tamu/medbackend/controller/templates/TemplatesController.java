@@ -96,6 +96,7 @@ public class TemplatesController extends BaseController {
     }
 
     @PostMapping("/referral")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<ApiResponse<DoctorReferral>> create(
             @RequestBody CreateReferralRequest request
     ) {
@@ -104,6 +105,7 @@ public class TemplatesController extends BaseController {
     }
 
     @GetMapping("/referral/doctor/{doctorId}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<ApiResponse<List<DoctorReferral>>> getByDoctor(
             @PathVariable Long doctorId
     ) {
@@ -112,6 +114,7 @@ public class TemplatesController extends BaseController {
     }
 
     @GetMapping("/referral/{id}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<ApiResponse<DoctorReferral>> getById(
             @PathVariable Long id
     ) {
@@ -120,6 +123,7 @@ public class TemplatesController extends BaseController {
     }
 
     @PutMapping("/referral/{id}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<ApiResponse<DoctorReferral>> update(
             @PathVariable Long id,
             @RequestBody UpdateReferralRequest request
@@ -129,6 +133,7 @@ public class TemplatesController extends BaseController {
     }
 
     @DeleteMapping("/referral/{id}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable Long id
     ) {
