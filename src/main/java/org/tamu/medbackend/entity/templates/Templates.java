@@ -1,5 +1,6 @@
 package org.tamu.medbackend.entity.templates;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,9 +37,11 @@ public class Templates {
     private Boolean active = true;
 
     @ManyToOne
+    @JsonIgnoreProperties({"user"})
     private DoctorProfile doctorProfile;
 
     @ManyToOne
+    @JsonIgnoreProperties({"doctorProfile"})
     private DoctorChamber doctorChamber;
 
     private LocalDateTime createdAt;

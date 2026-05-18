@@ -15,6 +15,7 @@ import org.tamu.medbackend.service.dtos.LoginRequest;
 import org.tamu.medbackend.service.dtos.PatientRegisterRequest;
 import org.tamu.medbackend.service.dtos.PatientResponse;
 import org.tamu.medbackend.service.dtos.RegisterRequest;
+import org.tamu.medbackend.service.dtos.DoctorLoginResponse;
 import org.tamu.medbackend.service.dtos.UpdateDoctorProfileRequest;
 import org.tamu.medbackend.service.dtos.UpdatePatientProfileRequest;
 
@@ -42,11 +43,18 @@ public class AuthController extends BaseController {
     }
 
     @PostMapping("/doctor-login")
-    public ResponseEntity<ApiResponse<String>> loginDoctor(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<DoctorLoginResponse>> loginDoctor(@RequestBody LoginRequest request) {
 
-        String token = authService.loginDoctor(request.getEmail(), request.getPassword());
+        DoctorLoginResponse result = authService.loginDoctor(
+                request.getEmail(),
+                request.getPassword(),
+                request.getChamberId());
 
-        return success(token, "Login successful", HttpStatus.OK);
+        String message = result.getToken() != null
+                ? "Login successful"
+                : "Chambers fetched successfully";
+
+        return success(result, message, HttpStatus.OK);
     }
 
     @PostMapping("/patient-login")

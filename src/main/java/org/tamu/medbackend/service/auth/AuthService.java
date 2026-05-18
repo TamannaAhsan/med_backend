@@ -21,6 +21,7 @@ import org.tamu.medbackend.service.dtos.CreatePatientRequest;
 import org.tamu.medbackend.service.dtos.PatientRegisterRequest;
 import org.tamu.medbackend.service.dtos.PatientResponse;
 import org.tamu.medbackend.service.dtos.RegisterRequest;
+import org.tamu.medbackend.service.dtos.DoctorLoginResponse;
 import org.tamu.medbackend.service.dtos.UpdateDoctorProfileRequest;
 import org.tamu.medbackend.service.dtos.UpdatePatientProfileRequest;
 
@@ -122,16 +123,61 @@ public class AuthService {
         patientProfileRepository.save(patientProfile);
     }
 
-    public String loginDoctor(String email, String password) {
+    public DoctorLoginResponse loginDoctor(String email, String password, Long chamberId) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        DoctorProfile profile = doctorProfileRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+        List<DoctorChamber> chambers = doctorChamberRepository.findByDoctorProfileId(profile.getId());
+
+        if (chambers.isEmpty()) {
+            throw new RuntimeException("Doctor has no chambers");
+        }
+
+        List<DoctorLoginResponse.ChamberSummary> chamberSummaries = chambers.stream()
+                .map(this::toChamberSummary)
+                .toList();
+
+        // Phase 1: email only — return chambers without token
+        if (password == null || password.isBlank()) {
+            DoctorLoginResponse response = new DoctorLoginResponse();
+            response.setDoctorId(profile.getId());
+            response.setChambers(chamberSummaries);
+            return response;
+        }
+
+        // Phase 2: full login
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return jwtService.generateToken(user.getEmail());
+        if (chamberId == null) {
+            throw new RuntimeException("Chamber is required");
+        }
+
+        boolean chamberBelongsToDoctor = chambers.stream()
+                .anyMatch(c -> c.getId().equals(chamberId));
+
+        if (!chamberBelongsToDoctor) {
+            throw new RuntimeException("Invalid chamber for this doctor");
+        }
+
+        DoctorLoginResponse response = new DoctorLoginResponse();
+        response.setToken(jwtService.generateToken(user.getEmail()));
+        response.setDoctorId(profile.getId());
+        response.setSelectedChamberId(chamberId);
+        response.setChambers(chamberSummaries);
+        return response;
+    }
+
+    private DoctorLoginResponse.ChamberSummary toChamberSummary(DoctorChamber chamber) {
+        DoctorLoginResponse.ChamberSummary summary = new DoctorLoginResponse.ChamberSummary();
+        summary.setId(chamber.getId());
+        summary.setChamberName(chamber.getChamberName());
+        return summary;
     }
 
     public String patientLogin(String contactNumber, String password) {
