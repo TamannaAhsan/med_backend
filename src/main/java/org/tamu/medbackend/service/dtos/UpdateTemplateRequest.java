@@ -11,6 +11,8 @@ public class UpdateTemplateRequest {
 
     private String content;
 
+    private String description;
+
     private Boolean testTemplate;
 
     private Boolean active;

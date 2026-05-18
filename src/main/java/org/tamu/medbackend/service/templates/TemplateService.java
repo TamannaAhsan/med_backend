@@ -36,6 +36,7 @@ public class TemplateService {
 
         template.setTitle(request.getTitle());
         template.setContent(request.getContent());
+        template.setDescription(request.getDescription());
         template.setTestTemplate(request.getTestTemplate());
 
         template.setDoctorProfile(doctor);
@@ -73,6 +74,7 @@ public class TemplateService {
 
         template.setTitle(request.getTitle());
         template.setContent(request.getContent());
+        template.setDescription(request.getDescription());
         template.setTestTemplate(request.getTestTemplate());
         template.setActive(request.getActive());
 

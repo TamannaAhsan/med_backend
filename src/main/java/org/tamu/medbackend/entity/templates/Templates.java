@@ -32,6 +32,9 @@ public class Templates {
 
     private String content;
 
+    /** Used for test templates only. */
+    private String description;
+
     private Boolean testTemplate;
 
     private Boolean active = true;

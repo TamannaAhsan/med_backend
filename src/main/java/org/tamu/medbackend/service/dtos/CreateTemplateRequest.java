@@ -11,6 +11,8 @@ public class CreateTemplateRequest {
 
     private String content;
 
+    private String description;
+
     private Boolean testTemplate;
 
     private Long doctorId;
