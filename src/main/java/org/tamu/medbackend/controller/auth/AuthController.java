@@ -1,5 +1,6 @@
 package org.tamu.medbackend.controller.auth;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,14 +19,11 @@ import org.tamu.medbackend.service.dtos.UpdateDoctorProfileRequest;
 import org.tamu.medbackend.service.dtos.UpdatePatientProfileRequest;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthController extends BaseController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     @PostMapping("/doctor-register")
     public ResponseEntity<ApiResponse<Void>> registerDoctor(@RequestBody RegisterRequest request) {
