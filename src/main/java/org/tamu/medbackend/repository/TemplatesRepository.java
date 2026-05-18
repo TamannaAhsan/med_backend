@@ -11,7 +11,7 @@ public interface TemplatesRepository extends JpaRepository<Templates, Long> {
 
     List<Templates> findByDoctorProfileId(Long doctorId);
 
-    List<Templates> findByDoctorProfileIdAndIsTest(Long doctorId, Boolean isTest);
+    List<Templates> findByDoctorProfileIdAndTestTemplate(Long doctorId, Boolean isTest);
 
 
 }

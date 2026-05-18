@@ -56,7 +56,7 @@ public class TemplateService {
 
     public List<Templates> getDoctorTemplatesByType(Long doctorId, Boolean isTest) {
 
-        return templatesRepository.findByDoctorProfileIdAndIsTest(doctorId, isTest);
+        return templatesRepository.findByDoctorProfileIdAndTestTemplate(doctorId, isTest);
     }
 
     public Templates getTemplate(Long id) {

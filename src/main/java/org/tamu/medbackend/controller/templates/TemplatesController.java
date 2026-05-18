@@ -15,18 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tamu.medbackend.common.ApiResponse;
 import org.tamu.medbackend.common.BaseController;
-import org.tamu.medbackend.entity.doctor.DoctorProfile;
-import org.tamu.medbackend.entity.patients.PatientProfile;
 import org.tamu.medbackend.entity.templates.Templates;
-import org.tamu.medbackend.service.auth.AuthService;
-import org.tamu.medbackend.service.dtos.CreatePatientRequest;
 import org.tamu.medbackend.service.dtos.CreateTemplateRequest;
-import org.tamu.medbackend.service.dtos.LoginRequest;
-import org.tamu.medbackend.service.dtos.PatientRegisterRequest;
-import org.tamu.medbackend.service.dtos.PatientResponse;
-import org.tamu.medbackend.service.dtos.RegisterRequest;
-import org.tamu.medbackend.service.dtos.UpdateDoctorProfileRequest;
-import org.tamu.medbackend.service.dtos.UpdatePatientProfileRequest;
 import org.tamu.medbackend.service.dtos.UpdateTemplateRequest;
 import org.tamu.medbackend.service.templates.TemplateService;
 
